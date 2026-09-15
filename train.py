@@ -36,14 +36,14 @@ def load_data(url=DATA_URL):
     print(f"[Stage 1: Ingestion] Downloading dataset from public URL: {url}")
     
     # TODO: Load dataset from url into pandas DataFrame variable 'df'
-    df = None  # <--- YOUR CODE HERE (e.g. pd.read_csv(url))
+    df = pd.read_csv(url) # <--- YOUR CODE HERE (e.g. pd.read_csv(url))
     
     if df is not None:
         print(f"                     Dataset Loaded: {df.shape[0]} rows, {df.shape[1]} columns")
         print(f"                     Missing values count by column:")
         
         # TODO: Calculate missing values for each column using df.isnull().sum()
-        missing = None  # <--- YOUR CODE HERE
+        missing = df.isnull().sum()  # <--- YOUR CODE HERE
         
         if missing is not None:
             for col, null_count in missing.items():
@@ -69,14 +69,14 @@ def clean_data(df):
     # TODO: Loop through numeric_cols and fill missing NaN values with median value
     for col in numeric_cols:
         # YOUR CODE HERE: Compute median and call fillna()
-        # median_val = df_clean[col].median()
-        # df_clean[col] = df_clean[col].fillna(median_val)
-        pass
+            median_val = df_clean[col].median()
+            df_clean[col] = df_clean[col].fillna(median_val)
+        # pass
         
     # TODO: Fill missing 'sex' column with the mode (most frequent value)
     # YOUR CODE HERE: fillna with df_clean['sex'].mode()[0]
-    pass
-        
+    df_clean['sex'] = df_clean['sex'].fillna(df_clean['sex'].mode()[0])
+
     return df_clean
 
 def train_model(df):
@@ -92,21 +92,21 @@ def train_model(df):
     feature_cols = ["bill_length_mm", "bill_depth_mm", "flipper_length_mm", "body_mass_g"]
     
     # TODO: Assign feature matrix X and target y
-    X = None  # <--- YOUR CODE HERE (e.g. df[feature_cols])
-    y = None  # <--- YOUR CODE HERE (e.g. df["species"])
+    X = df[feature_cols]  # <--- YOUR CODE HERE (e.g. df[feature_cols])
+    y = df['species']  # <--- YOUR CODE HERE (e.g. df["species"])
     
     # TODO: Split into train/test subsets using train_test_split (test_size=0.2, random_state=42, stratify=y)
-    X_train, X_test, y_train, y_test = None, None, None, None  # <--- YOUR CODE HERE
-    
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+
     # TODO: Instantiate and train RandomForestClassifier(n_estimators=100, max_depth=5, random_state=42)
-    clf = None  # <--- YOUR CODE HERE
-    # clf.fit(X_train, y_train)
-    
+    clf = RandomForestClassifier(n_estimators=100, max_depth=5, random_state=42)
+    clf.fit(X_train, y_train)
+
     accuracy = 0.0
     if clf is not None and hasattr(clf, "classes_") and X_test is not None and y_test is not None:
         # TODO: Generate predictions y_pred and compute accuracy_score
-        y_pred = None  # <--- YOUR CODE HERE (e.g. clf.predict(X_test))
-        
+        y_pred = clf.predict(X_test)
+
         if y_pred is not None:
             accuracy = accuracy_score(y_test, y_pred)
             print("\n" + "=" * 55)
@@ -132,8 +132,8 @@ def export_model(model, output_path="penguin_model.pkl"):
     if model is not None and hasattr(model, "classes_"):
         # TODO: Serialize trained model using pickle.dump()
         # YOUR CODE HERE:
-        # with open(output_path, "wb") as f:
-        #     pickle.dump(model, f)
+        with open(output_path, "wb") as f:
+            pickle.dump(model, f)
         print(f"\n[Stage 5: Export] Serialized model saved to: {output_path}")
     else:
         print("\n[Stage 5: Export] 💡 Train your model in Stage 4 before serializing!")

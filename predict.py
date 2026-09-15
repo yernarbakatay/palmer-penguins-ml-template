@@ -38,8 +38,8 @@ def load_model(model_path):
     model = None
     # TODO: Load serialized model artifact using pickle.load()
     # YOUR CODE HERE:
-    # with open(model_path, "rb") as f:
-    #     model = pickle.load(f)
+    with open(model_path, "rb") as f:
+        model = pickle.load(f)
     
     return model
 
@@ -52,12 +52,17 @@ def predict_species(model, bill_len, bill_dep, flipper_len, body_mass):
         return None
 
     # TODO: Construct input pandas DataFrame matching exact feature column names
-    input_df = None  # <--- YOUR CODE HERE (DataFrame with bill_length_mm, bill_depth_mm, flipper_length_mm, body_mass_g)
-    
+    input_df = pd.DataFrame({
+        "bill_length_mm": [bill_len],
+        "bill_depth_mm": [bill_dep],
+        "flipper_length_mm": [flipper_len],
+        "body_mass_g": [body_mass]
+    })
+
     if input_df is not None:
         # TODO: Predict species label and class probabilities
-        prediction = None  # <--- YOUR CODE HERE (e.g. model.predict(input_df)[0])
-        probabilities = None  # <--- YOUR CODE HERE (e.g. model.predict_proba(input_df)[0])
+        prediction = model.predict(input_df)[0]
+        probabilities = model.predict_proba(input_df)[0]
         classes = model.classes_
         
         if prediction is not None and probabilities is not None:
